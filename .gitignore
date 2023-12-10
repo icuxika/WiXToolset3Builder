@@ -1,0 +1,7 @@
+/SourceDir/
+Application.wxs
+Product-perMachine.wixobj
+Product-perUser.wixobj
+Application.wixobj
+Product.wixpdb
+Product.msi

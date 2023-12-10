@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" UpgradeCode="DD475EBC-D960-4AF4-BB8A-BE91FA942756" Version="1.0.0.0" Language="1033" Name="My Application Name" Manufacturer="My Manufacturer Name">
+        <Package InstallerVersion="300" Compressed="yes" InstallScope="perUser"/>
+        <Media Id="1" Cabinet="myapplication.cab" EmbedCab="yes" />
+
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="LocalAppDataFolder">
+                <Directory Id="AppsFolder" Name="Programs">
+                    <Directory Id="APPLICATIONROOTDIRECTORY" Name="My Application Name"/>
+                </Directory>
+            </Directory>
+        </Directory>
+
+        <Feature Id="MainApplication" Title="Main Application" Level="1">
+            <ComponentGroupRef Id="Package" />
+        </Feature>
+
+        <WixVariable Id="WixUILicenseRtf" Value=".\UIResource\License.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value=".\UIResource\Banner.jpg" />
+        <WixVariable Id="WixUIDialogBmp" Value=".\UIResource\Dialog.jpg" />
+
+        <!-- 选择安装目录 -->
+        <Property Id="WIXUI_INSTALLDIR" Value="APPLICATIONROOTDIRECTORY" />
+        <UIRef Id="WixUI_InstallDir" />
+    </Product>
+</Wix>

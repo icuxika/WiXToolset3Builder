@@ -4,7 +4,7 @@
         Id="*" 
         UpgradeCode="01B4D4CA-8DFF-4708-A86E-00E78B64BCC6" 
         Version="$(var.MajorVersion).$(var.MinorVersion).$(var.PatchVersion)" 
-        Language="1033" 
+        Language="2052" 
         Name="$(var.ApplicationName)" 
         Manufacturer="$(var.Manufacturer)">
 

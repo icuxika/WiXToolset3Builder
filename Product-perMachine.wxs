@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="*" UpgradeCode="DD475EBC-D960-4AF4-BB8A-BE91FA942756" Version="1.0.0.0" Language="1033" Name="$(var.ApplicationName)" Manufacturer="My Manufacturer Name">
+    <Product 
+        Id="*" 
+        UpgradeCode="F0D2BAA2-5280-4850-89B0-F8889BD4AE0E" 
+        Version="$(var.MajorVersion).$(var.MinorVersion).$(var.PatchVersion)" 
+        Language="1033" 
+        Name="$(var.ApplicationName)" 
+        Manufacturer="$(var.Manufacturer)">
+
         <Package InstallerVersion="300" Compressed="yes"/>
         <Media Id="1" Cabinet="Data.cab" EmbedCab="yes" />
+
+        <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFiles64Folder">
@@ -18,7 +27,7 @@
                 <Shortcut Id="ApplicationStartMenuShortcut"
                           Name="$(var.ApplicationName)"
                           Description="My Application Description"
-                          Target="[APPLICATIONROOTDIRECTORY]$(var.startupProgramName).exe"
+                          Target="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe"
                           WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
                 <!-- Step 1: Add the uninstall shortcut to your installer package -->
                 <Shortcut Id="UninstallProduct"

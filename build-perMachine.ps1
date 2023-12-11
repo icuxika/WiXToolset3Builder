@@ -8,7 +8,7 @@ try {
     $applicationWixobjFileName = "Application.wixobj"
     $msiFileName = "Product.msi"
 
-    & "$candlePath" -dPlatform=x64 -arch x64 $productWxsFileName $applicationWxsFileName
+    & "$candlePath" -dApplicationName="ComposeMultiplatformProject" -dstartupProgramName="ComposeMultiplatformProject" -dPlatform=x64 -arch x64 $productWxsFileName $applicationWxsFileName
     & "$lightPath" -ext WixUIExtension -cultures:zh-CN $productWixobjFileName $applicationWixobjFileName -out $msiFileName
 }
 catch {

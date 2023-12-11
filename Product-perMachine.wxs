@@ -1,17 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="*" UpgradeCode="DD475EBC-D960-4AF4-BB8A-BE91FA942756" Version="1.0.0.0" Language="1033" Name="My Application Name" Manufacturer="My Manufacturer Name">
+    <Product Id="*" UpgradeCode="DD475EBC-D960-4AF4-BB8A-BE91FA942756" Version="1.0.0.0" Language="1033" Name="$(var.ApplicationName)" Manufacturer="My Manufacturer Name">
         <Package InstallerVersion="300" Compressed="yes"/>
-        <Media Id="1" Cabinet="myapplication.cab" EmbedCab="yes" />
+        <Media Id="1" Cabinet="Data.cab" EmbedCab="yes" />
 
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFiles64Folder">
-                <Directory Id="APPLICATIONROOTDIRECTORY" Name="My Application Name"/>
+                <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)"/>
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="$(var.ApplicationName)"/>
             </Directory>
         </Directory>
 
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="*">
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                          Name="$(var.ApplicationName)"
+                          Description="My Application Description"
+                          Target="[APPLICATIONROOTDIRECTORY]$(var.startupProgramName).exe"
+                          WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+                <!-- Step 1: Add the uninstall shortcut to your installer package -->
+                <Shortcut Id="UninstallProduct"
+                          Name="Uninstall $(var.ApplicationName)"
+                          Description="Uninstalls My Application"
+                          Target="[System64Folder]msiexec.exe"
+                          Arguments="/x [ProductCode]"/>
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\MyCompany\$(var.ApplicationName)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+
         <Feature Id="MainApplication" Title="Main Application" Level="1">
             <ComponentGroupRef Id="Package" />
+            <ComponentRef Id="ApplicationShortcut" />
         </Feature>
 
         <WixVariable Id="WixUILicenseRtf" Value=".\UIResource\License.rtf" />
@@ -21,5 +43,9 @@
         <!-- 选择安装目录 -->
         <Property Id="WIXUI_INSTALLDIR" Value="APPLICATIONROOTDIRECTORY" />
         <UIRef Id="WixUI_InstallDir" />
+        
+        <!-- 安装程序图标 -->
+        <Icon Id="icon.ico" SourceFile=".\UIResource\product.ico"/>
+        <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     </Product>
 </Wix>

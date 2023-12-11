@@ -16,7 +16,7 @@ try {
     $startupProgramName = "ComposeMultiplatformProject"
     $manufacturer = "My Manufacturer Name"
 
-    & "$candlePath" -dApplicationName="$applicationName" -dstartupProgramName="$startupProgramName" -dManufacturer="$manufacturer" -dMajorVersion="$majorVersion" -dMinorVersion="$minorVersion" -dPatchVersion="$patchVersion" -dPlatform=x64 -arch x64 $productWxsFileName $applicationWxsFileName
+    & "$candlePath" -dApplicationName="$applicationName" -dStartupProgramName="$startupProgramName" -dManufacturer="$manufacturer" -dMajorVersion="$majorVersion" -dMinorVersion="$minorVersion" -dPatchVersion="$patchVersion" -dPlatform=x64 -arch x64 $productWxsFileName $applicationWxsFileName
     & "$lightPath" -ext WixUIExtension -cultures:zh-CN $productWixobjFileName $applicationWixobjFileName -out $msiFileName
 }
 catch {

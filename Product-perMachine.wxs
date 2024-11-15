@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product 
-        Id="*" 
-        UpgradeCode="F0D2BAA2-5280-4850-89B0-F8889BD4AE0E" 
-        Version="$(var.MajorVersion).$(var.MinorVersion).$(var.PatchVersion)" 
-        Language="2052" 
-        Name="$(var.ApplicationName)" 
+    <Product
+        Id="*"
+        UpgradeCode="F0D2BAA2-5280-4850-89B0-F8889BD4AE0E"
+        Version="$(var.MajorVersion).$(var.MinorVersion).$(var.PatchVersion)"
+        Language="2052"
+        Name="$(var.ApplicationName)"
         Manufacturer="$(var.Manufacturer)">
 
-        <Package InstallerVersion="300" Compressed="yes"/>
+        <Package InstallerVersion="300" Compressed="yes" />
         <Media Id="1" Cabinet="Data.cab" EmbedCab="yes" />
 
-        <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+        <MajorUpgrade
+            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFiles64Folder">
-                <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)"/>
+                <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)" />
             </Directory>
             <Directory Id="ProgramMenuFolder">
-                <Directory Id="ApplicationProgramsFolder" Name="$(var.ApplicationName)"/>
+                <Directory Id="ApplicationProgramsFolder" Name="$(var.ApplicationName)" />
             </Directory>
         </Directory>
 
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationShortcut" Guid="*">
                 <Shortcut Id="ApplicationStartMenuShortcut"
-                          Name="$(var.ApplicationName)"
-                          Description="My Application Description"
-                          Target="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe"
-                          WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+                    Name="$(var.ApplicationName)"
+                    Description="My Application Description"
+                    Target="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe"
+                    WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                 <!-- Step 1: Add the uninstall shortcut to your installer package -->
                 <Shortcut Id="UninstallProduct"
-                          Name="Uninstall $(var.ApplicationName)"
-                          Description="Uninstalls My Application"
-                          Target="[System64Folder]msiexec.exe"
-                          Arguments="/x [ProductCode]"/>
-                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-                <RegistryValue Root="HKCU" Key="Software\MyCompany\$(var.ApplicationName)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+                    Name="Uninstall $(var.ApplicationName)"
+                    Description="Uninstalls My Application"
+                    Target="[System64Folder]msiexec.exe"
+                    Arguments="/x [ProductCode]" />
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\MyCompany\$(var.ApplicationName)"
+                    Name="installed" Type="integer" Value="1" KeyPath="yes" />
             </Component>
         </DirectoryRef>
 
@@ -51,10 +53,23 @@
 
         <!-- 选择安装目录 -->
         <Property Id="WIXUI_INSTALLDIR" Value="APPLICATIONROOTDIRECTORY" />
-        <UIRef Id="WixUI_InstallDir" />
-        
+        <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="感谢安装本产品。" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="立即运行" />
+        <UI>
+            <UIRef Id="WixUI_InstallDir" />
+            <Publish Dialog="ExitDialog"
+                Control="Finish"
+                Event="DoAction"
+                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        </UI>
+
+        <Property Id="WixShellExecTarget"
+            Value="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe" />
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec"
+            Impersonate="yes" />
+
         <!-- 安装程序图标 -->
-        <Icon Id="icon.ico" SourceFile=".\UIResource\product.ico"/>
+        <Icon Id="icon.ico" SourceFile=".\UIResource\product.ico" />
         <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     </Product>
 </Wix>

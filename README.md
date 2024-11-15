@@ -24,3 +24,8 @@
 
 1. 修改`Product-perUser.wxs`的`$applicationName`与`$startupProgramName`
 2. 调用`.\build-perUser.ps1`生成`Product.msi`
+
+## 记录 msi 安装日志
+```
+msiexec.exe /i "Product.msi" /l*v "log.log"
+```

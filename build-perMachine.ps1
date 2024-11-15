@@ -17,7 +17,7 @@ try {
     $manufacturer = "My Manufacturer Name"
 
     & "$candlePath" -dApplicationName="$applicationName" -dStartupProgramName="$startupProgramName" -dManufacturer="$manufacturer" -dMajorVersion="$majorVersion" -dMinorVersion="$minorVersion" -dPatchVersion="$patchVersion" -dPlatform=x64 -arch x64 $productWxsFileName $applicationWxsFileName
-    & "$lightPath" -ext WixUIExtension -cultures:zh-CN $productWixobjFileName $applicationWixobjFileName -out $msiFileName
+    & "$lightPath" -ext WixUIExtension -ext WixUtilExtension -cultures:zh-CN $productWixobjFileName $applicationWixobjFileName -out $msiFileName
 }
 catch {
     Write-Error $_

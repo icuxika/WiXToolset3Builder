@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product
+        Id="*"
+        UpgradeCode="01B4D4CA-8DFF-4708-A86E-00E78B64BCC6"
+        Version="$(var.MajorVersion).$(var.MinorVersion).$(var.PatchVersion)"
+        Language="2052"
+        Name="$(var.ApplicationName)"
+        Manufacturer="$(var.Manufacturer)">
+
+        <Package InstallerVersion="300" Compressed="yes" />
+        <Media Id="1" Cabinet="Data.cab" EmbedCab="yes" />
+
+        <MajorUpgrade
+            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="LocalAppDataFolder">
+                <Directory Id="AppsFolder" Name="Programs">
+                    <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)" />
+                </Directory>
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="$(var.ApplicationName)" />
+            </Directory>
+        </Directory>
+
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="*">
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                    Name="$(var.ApplicationName)"
+                    Description="My Application Description"
+                    Target="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe"
+                    WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                <!-- Step 1: Add the uninstall shortcut to your installer package -->
+                <Shortcut Id="UninstallProduct"
+                    Name="Uninstall $(var.ApplicationName)"
+                    Description="Uninstalls My Application"
+                    Target="[System64Folder]msiexec.exe"
+                    Arguments="/x [ProductCode]" />
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\MyCompany\$(var.ApplicationName)"
+                    Name="installed" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </DirectoryRef>
+
+        <Feature Id="MainApplication" Title="Main Application" Level="1">
+            <ComponentGroupRef Id="Package" />
+            <ComponentRef Id="ApplicationShortcut" />
+        </Feature>
+
+        <WixVariable Id="WixUILicenseRtf" Value=".\UIResource\License.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value=".\UIResource\Banner.jpg" />
+        <WixVariable Id="WixUIDialogBmp" Value=".\UIResource\Dialog.jpg" />
+
+        <!-- 选择安装目录 -->
+        <Property Id="WixPerUserFolder" />
+        <Property Id="WixPerMachineFolder" />
+        <WixVariable Id="WixUISupportPerUser" Value="1" />
+        <WixVariable Id="WixUISupportPerMachine" Value="1" />
+        <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+        <Property Id="WIXUI_INSTALLDIR" Value="APPLICATIONROOTDIRECTORY" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="感谢安装本产品。" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="立即运行" />
+
+        <CustomAction Id="SetWixPerUserFolder" Property="WixPerUserFolder"
+            Value="[LocalAppDataFolder]Programs\$(var.ApplicationName)" Execute="immediate" />
+        <CustomAction Id="SetWixPerMachineFolder" Property="WixPerMachineFolder"
+            Value="[ProgramFiles64Folder]$(var.ApplicationName)" Execute="immediate" />
+        <InstallExecuteSequence>
+            <Custom Action="SetWixPerUserFolder" Before="CostFinalize" />
+            <Custom Action="SetWixPerMachineFolder" After="SetWixPerUserFolder" />
+        </InstallExecuteSequence>
+        <InstallUISequence>
+            <Custom Action="SetWixPerUserFolder" Before="CostFinalize" />
+            <Custom Action="SetWixPerMachineFolder" After="SetWixPerUserFolder" />
+        </InstallUISequence>
+
+        <UI Id="WixUI_InstallDir">
+            <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+            <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+            <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+            <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+            <Property Id="WixUI_Mode" Value="InstallDir" />
+
+            <DialogRef Id="BrowseDlg" />
+            <DialogRef Id="DiskCostDlg" />
+            <DialogRef Id="ErrorDlg" />
+            <DialogRef Id="FatalError" />
+            <DialogRef Id="FilesInUse" />
+            <DialogRef Id="MsiRMFilesInUse" />
+            <DialogRef Id="PrepareDlg" />
+            <DialogRef Id="ProgressDlg" />
+            <DialogRef Id="ResumeDlg" />
+            <DialogRef Id="UserExit" />
+
+            <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath"
+                Order="3">1</Publish>
+            <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg"
+                Order="4"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+
+            <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return"
+                Order="999">1</Publish>
+
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog"
+                Value="LicenseAgreementDlg">NOT Installed</Publish>
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed
+                AND PATCH</Publish>
+
+            <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog"
+                Value="WelcomeDlg">1</Publish>
+            <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog"
+                Value="InstallScopeDlg">LicenseAccepted = "1"</Publish>
+
+            <Publish Dialog="InstallScopeDlg" Control="Back" Event="NewDialog"
+                Value="LicenseAgreementDlg">1</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Property="WixAppFolder"
+                Value="WixPerUserFolder" Order="1">!(wix.WixUISupportPerUser) AND NOT Privileged</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="{}"
+                Order="2">WixAppFolder = "WixPerUserFolder"</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Property="ALLUSERS" Value="1" Order="3">WixAppFolder
+                = "WixPerMachineFolder"</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Property="APPLICATIONROOTDIRECTORY"
+                Value="[WixPerUserFolder]" Order="4">WixAppFolder = "WixPerUserFolder"</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Property="APPLICATIONROOTDIRECTORY"
+                Value="[WixPerMachineFolder]" Order="5">WixAppFolder = "WixPerMachineFolder"</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"
+                Order="6">WixAppFolder = "WixPerUserFolder"</Publish>
+            <Publish Dialog="InstallScopeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"
+                Order="7">WixAppFolder = "WixPerMachineFolder"</Publish>
+
+            <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog"
+                Value="InstallScopeDlg">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath"
+                Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction"
+                Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg"
+                Order="3"><![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
+            <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg"
+                Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty"
+                Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+            <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Event="SpawnDialog"
+                Value="BrowseDlg" Order="2">1</Publish>
+
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg"
+                Order="1">NOT Installed</Publish>
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog"
+                Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
+            <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"
+                Order="2">Installed AND PATCH</Publish>
+
+            <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog"
+                Value="MaintenanceTypeDlg">1</Publish>
+
+            <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog"
+                Value="VerifyReadyDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog"
+                Value="VerifyReadyDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog"
+                Value="MaintenanceWelcomeDlg">1</Publish>
+
+            <Publish Dialog="ExitDialog"
+                Control="Finish"
+                Event="DoAction"
+                Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+
+            <Property Id="ARPNOMODIFY" Value="1" />
+        </UI>
+        <UIRef Id="WixUI_Common" />
+
+        <Property Id="WixShellExecTarget"
+            Value="[APPLICATIONROOTDIRECTORY]$(var.StartupProgramName).exe" />
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec"
+            Impersonate="yes" />
+
+        <!-- 安装程序图标 -->
+        <Icon Id="icon.ico" SourceFile=".\UIResource\product.ico" />
+        <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    </Product>
+</Wix>

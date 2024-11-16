@@ -15,9 +15,9 @@
             DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 
         <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)" />
             <Directory Id="LocalAppDataFolder">
                 <Directory Id="AppsFolder" Name="Programs">
-                    <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.ApplicationName)" />
                 </Directory>
             </Directory>
             <Directory Id="ProgramMenuFolder">
